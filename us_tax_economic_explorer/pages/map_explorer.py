@@ -195,6 +195,7 @@ def choose_state(click_data, _back, current):
     Input('state-map-metric','value'),
     Input('county-map-metric','value'),
     Input('income-store','data'),
+   
 )
 def render_map(selected_state, state_metric, county_metric, income_store):
     try:
@@ -222,7 +223,9 @@ def render_map(selected_state, state_metric, county_metric, income_store):
             color_continuous_scale='Magma'
         )
         fig.update_geos(fitbounds='locations', visible=False)
-        fig.update_traces(marker_line_width=.35, hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.2f}<extra></extra>')
+    
+
+        fig.update_traces(marker_line_color='white', marker_line_width=0.7, hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.2f}<extra></extra>')
         fig.update_layout(margin=dict(l=0,r=0,t=10,b=0), coloraxis_colorbar_title=label)
         return fig, f'{ABBR_TO_NAME[selected_state]} County Explorer', {}, {'display':'none'}, {}, note
     except (CensusAPIError, BEAAPIError, BLSAPIError, GeoJSONError) as exc:
