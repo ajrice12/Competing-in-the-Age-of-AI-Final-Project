@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: us-tax-economic-explorer
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:server
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: CENSUS_API_KEY
+        sync: false
+      - key: BEA_API_KEY
+        sync: false
