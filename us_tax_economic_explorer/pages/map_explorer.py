@@ -182,7 +182,7 @@ def render_map(selected_state, state_metric, county_metric, income_store):
             df, label, note = _state_df(state_metric, income_store)
             fig = px.choropleth(
                 df, locations='abbr', locationmode='USA-states', color='value', scope='usa',
-                hover_name='state', custom_data=['value'], color_continuous_scale='Viridis'
+                hover_name='state', custom_data=['value'], color_continuous_scale='Magma'
             )
             fig.update_traces(hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.2f}<extra></extra>')
             fig.update_layout(margin=dict(l=0,r=0,t=10,b=0), coloraxis_colorbar_title=label)
@@ -193,7 +193,7 @@ def render_map(selected_state, state_metric, county_metric, income_store):
         fig = px.choropleth(
             df, geojson=geojson, locations='fips', color='value',
             featureidkey='id', hover_name='county_name', custom_data=['value'],
-            color_continuous_scale='Viridis'
+            color_continuous_scale='Magma'
         )
         fig.update_geos(fitbounds='locations', visible=False)
         fig.update_traces(marker_line_width=.35, hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.2f}<extra></extra>')
