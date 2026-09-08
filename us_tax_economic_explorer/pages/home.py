@@ -12,6 +12,7 @@ import plotly.express as px
 
 from services.tax_engine import rank_states
 from services.census_api import get_county_metrics, CensusAPIError
+from utils.sales_tax_ui import comparison_panel, comparison_view, lookup_panel, quote_view
 
 dash.register_page(__name__, path='/', name='Home')
 
@@ -67,8 +68,21 @@ layout = html.Div([
             html.P('Simplified estimator; local income taxes and many credits/special rules are excluded.', className='muted'),
             dcc.Graph(id='tax-ranking-chart', config={'displayModeBar': False})
         ], className='panel')
-    ])
+    ]),
+    comparison_panel(),
+    lookup_panel('home-sales'),
 ])
+
+
+@callback(Output('home-sales-chart', 'figure'), Output('home-sales-table', 'children'), Input('home-sales-metric', 'value'))
+def show_sales_comparison(metric):
+    return comparison_view(metric)
+
+
+@callback(Output('home-sales-result', 'children'), Input('home-sales-lookup', 'n_clicks'),
+          State('home-sales-zip', 'value'), State('home-sales-purchase', 'value'), prevent_initial_call=True)
+def show_sales_lookup(clicks, zip_code, purchase):
+    return quote_view(zip_code, purchase)
 
 
 @callback(

@@ -18,10 +18,13 @@ from services.census_api import get_state_metrics as census_states, get_county_m
 from services.bea_api import get_state_real_gdp, get_county_personal_income, BEAAPIError
 from services.geojson import get_county_geojson, GeoJSONError
 from utils.geography import FIPS_TO_ABBR, ABBR_TO_NAME, ABBR_TO_FIPS, FIPS_TO_NAME
+from services.sales_tax import SALES_METRICS, state_sales_taxes, source_note, source_url
+from utils.sales_tax_ui import lookup_panel, quote_view
 
 dash.register_page(__name__, path='/map', name='Interactive Map')
 
 STATE_METRICS = {
+    **{key: (label, 'sales') for key, label in SALES_METRICS.items()},
     'estimated_tax': ('Estimated state income tax', 'tax'),
     'effective_rate': ('Effective state income-tax rate', 'tax'),
     'avg_wkly_wage': ('Average weekly wage — BLS QCEW 2026 Q1', 'bls'),
@@ -80,8 +83,21 @@ layout = html.Div([
     html.Div([
         dcc.Loading(dcc.Graph(id='economic-map', config={'displayModeBar': False}, style={'height':'650px'}), type='circle')
     ], className='panel map-panel'),
-    html.Div(id='county-profile', className='panel')
+    html.Div(id='county-profile', className='panel'),
+    html.P(['Sales-tax colors are available at state level. County maps retain economic indicators; '
+            'a ZIP lookup below provides a separate local estimate, not a county-wide rate. ',
+            html.A('State sales-tax source', href=source_url(), target='_blank', rel='noopener noreferrer')], className='status-note'),
+    lookup_panel('map-sales'),
 ])
+
+
+@callback(Output('map-sales-result', 'children'), Input('map-sales-lookup', 'n_clicks'),
+          Input('selected-state', 'data'), State('map-sales-zip', 'value'), State('map-sales-purchase', 'value'),
+          prevent_initial_call=True)
+def show_map_sales_lookup(clicks, selected_state, zip_code, purchase):
+    if ctx.triggered_id != 'map-sales-lookup' or not clicks:
+        return html.P('Enter a ZIP code and select Look up sales tax for this view.', className='muted small')
+    return quote_view(zip_code, purchase, selected_state)
 
 
 def _empty_figure(message: str):
@@ -93,6 +109,10 @@ def _empty_figure(message: str):
 
 def _state_df(metric: str, income_store: dict | None):
     label, source = STATE_METRICS[metric]
+    if source == 'sales':
+        df = state_sales_taxes()
+        df['value'] = df[metric]
+        return df[['state', 'abbr', 'value']], label, source_note()
     if source == 'tax':
         store = income_store or {'income':100000,'filing_status':'single'}
         df = rank_states(store.get('income',100000), store.get('filing_status','single')).copy()
@@ -180,11 +200,17 @@ def render_map(selected_state, state_metric, county_metric, income_store):
     try:
         if not selected_state:
             df, label, note = _state_df(state_metric, income_store)
+            sales = state_sales_taxes()[['abbr', *SALES_METRICS]]
+            df = df.merge(sales, on='abbr', how='left', validate='one_to_one')
             fig = px.choropleth(
                 df, locations='abbr', locationmode='USA-states', color='value', scope='usa',
-                hover_name='state', custom_data=['value'], color_continuous_scale='Magma'
+                hover_name='state', custom_data=['value', *SALES_METRICS], color_continuous_scale='Magma'
             )
-            fig.update_traces(hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.2f}<extra></extra>')
+            suffix = '%' if state_metric in SALES_METRICS else ''
+            fig.update_traces(hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.3f}'+suffix+
+                              '<br><br>Sales tax • July 1, 2026<br>State: %{customdata[1]:.3f}%'
+                              '<br>Average local: %{customdata[2]:.3f}%<br>Average combined: %{customdata[3]:.3f}%'
+                              '<br>State averages; not address rates<extra></extra>')
             fig.update_layout(margin=dict(l=0,r=0,t=10,b=0), coloraxis_colorbar_title=label)
             return fig, 'U.S. State Economic Map', {'display':'none'}, {}, {'display':'none'}, note
 

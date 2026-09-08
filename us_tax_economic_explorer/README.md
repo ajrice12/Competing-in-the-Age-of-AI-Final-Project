@@ -229,3 +229,9 @@ Network/API tests are intentionally not required for the basic test run.
 ## AI assistance disclosure
 
 ChatGPT was used to help brainstorm the project architecture, identify official APIs, draft callback patterns, create an initial version of the tax-estimator logic, build error-handling patterns, draft styling, and generate initial tests/documentation. All submitted code should be reviewed, edited, run, and understood by the team. Government API fields, tax rates/brackets, and outputs should be verified by the team against the linked primary/official sources before presentation or submission.
+# Sales-tax addition
+
+The home page, state choropleth, and Compare States page now include sales-tax
+comparisons. Free ZIP lookups are also available on home and map pages.
+See [SALES_TAX.md](SALES_TAX.md) for source dates, API limitations, county coverage,
+and failure handling. No additional API key is required.

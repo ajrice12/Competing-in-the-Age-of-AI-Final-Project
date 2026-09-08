@@ -16,11 +16,13 @@ from services.tax_engine import rank_states
 from services.bls_qcew import get_state_metrics as bls_states
 from services.census_api import get_state_metrics as census_states, CensusAPIError
 from utils.geography import STATE_META, FIPS_TO_NAME
+from services.sales_tax import SALES_METRICS, source_note, state_sales_taxes
 
 dash.register_page(__name__, path='/compare', name='Compare States')
 
 STATE_OPTIONS = [{'label':name,'value':name} for name in STATE_META if name != 'District of Columbia']
 METRICS = {
+    **SALES_METRICS,
     'estimated_tax':'Estimated tax at saved income',
     'effective_rate':'Effective tax rate',
     'avg_wkly_wage':'Average weekly wage',
@@ -54,7 +56,12 @@ def compare_states(states, metric, income_store):
         fig = go.Figure().add_annotation(text='Select at least one state.', x=.5, y=.5, showarrow=False)
         return fig, 'No states selected.'
     try:
-        if metric in {'estimated_tax','effective_rate'}:
+        if metric in SALES_METRICS:
+            df = state_sales_taxes()
+            df = df[df['state'].isin(states)].copy()
+            df['value'] = df[metric]
+            note = source_note()
+        elif metric in {'estimated_tax','effective_rate'}:
             s = income_store or {'income':100000,'filing_status':'single'}
             df = rank_states(s.get('income',100000), s.get('filing_status','single'))
             df = df[df['state'].isin(states)].copy()
