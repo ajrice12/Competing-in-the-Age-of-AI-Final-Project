@@ -62,7 +62,7 @@ No extra dependency, paid service, API key, or persistent disk is needed.
 ## County coverage limitation
 
 There is no verified complete nationwide county dataset behind this feature.
-County choropleths continue to show the existing economic measures. The separate
+County choropleths open with an API-independent boundary view and can show the existing economic measures. The separate
 ZIP panel can show the provider's county/city/other-local components for a
 validated response, but it does not recolor counties or claim that a ZIP's rate
 applies everywhere within a county. Selecting another state clears the previous

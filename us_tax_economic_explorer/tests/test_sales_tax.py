@@ -173,10 +173,9 @@ def test_pages_and_existing_tax_paths_work_offline(monkeypatch):
     assert len(tax_map[0].data[0].customdata[0]) == 4
     import pandas as pd
     monkeypatch.setattr(map_explorer, 'bls_counties', lambda _: pd.DataFrame({'fips': ['51001'], 'avg_wkly_wage': [1000]}))
-    monkeypatch.setattr(map_explorer, 'get_area_titles', lambda: pd.DataFrame({'area_fips': ['51001'], 'area_title': ['Accomack County']}))
     county_map = map_explorer.render_map('VA', 'sales_combined_average', 'avg_wkly_wage', {})
-    assert list(county_map[0].data[0].locations) == ['51001']
-    assert list(county_map[0].data[0].z) == [1000]
+    assert list(county_map[0].data[-1].locations) == ['51001']
+    assert list(county_map[0].data[-1].z) == [1000]
     client = app.server.test_client()
     for path in ['/', '/map', '/compare', '/rankings', '/_dash-layout', '/_dash-dependencies']:
         assert client.get(path).status_code == 200

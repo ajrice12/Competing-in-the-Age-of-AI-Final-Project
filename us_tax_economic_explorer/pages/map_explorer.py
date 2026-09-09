@@ -13,13 +13,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 from services.tax_engine import rank_states
-from services.bls_qcew import get_state_metrics as bls_states, get_county_metrics as bls_counties, get_area_titles, BLSAPIError
+from services.bls_qcew import get_state_metrics as bls_states, get_county_metrics as bls_counties, BLSAPIError
 from services.census_api import get_state_metrics as census_states, get_county_metrics as census_counties, CensusAPIError
 from services.bea_api import get_state_real_gdp, get_county_personal_income, BEAAPIError
-from services.geojson import get_county_geojson, GeoJSONError
+from services.geojson import GeoJSONError
 from utils.geography import FIPS_TO_ABBR, ABBR_TO_NAME, ABBR_TO_FIPS, FIPS_TO_NAME
 from services.sales_tax import SALES_METRICS, state_sales_taxes, source_note, source_url
 from utils.sales_tax_ui import lookup_panel, quote_view
+from utils.county_map import county_boundaries, county_figure
 
 dash.register_page(__name__, path='/map', name='Interactive Map')
 
@@ -38,6 +39,7 @@ STATE_METRICS = {
 }
 
 COUNTY_METRICS = {
+    'boundaries': ('County boundaries — no API needed', 'geography'),
     'avg_wkly_wage': ('Average weekly wage — BLS QCEW 2026 Q1', 'bls'),
     'job_growth': ('Employment growth YoY — BLS QCEW 2026 Q1', 'bls'),
     'establishments': ('Business establishments — BLS QCEW 2026 Q1', 'bls'),
@@ -81,7 +83,8 @@ layout = html.Div([
 
     html.Div(id='map-source-note', className='status-note'),
     html.Div([
-        dcc.Loading(dcc.Graph(id='economic-map', config={'displayModeBar': False}, style={'height':'650px'}), type='circle')
+        dcc.Loading(dcc.Graph(id='economic-map', config={'displayModeBar': False}, style={'height':'650px'}), type='circle',
+                    overlay_style={'visibility': 'visible', 'opacity': .6})
     ], className='panel map-panel'),
     html.Div(id='county-profile', className='panel'),
     html.P(['Sales-tax colors are available at state level. County maps retain economic indicators; '
@@ -143,17 +146,12 @@ def _county_df(state_abbr: str, metric: str):
     label, source = COUNTY_METRICS[metric]
     if source == 'bls':
         df = bls_counties(state_fips).copy()
-        try:
-            titles = get_area_titles()
-            df = df.merge(titles, left_on='fips', right_on='area_fips', how='left', suffixes=('','_title'))
-        except Exception:
-            df['area_title'] = df['fips']
         col = {
             'avg_wkly_wage':'avg_wkly_wage', 'job_growth':'oty_month3_emplvl_pct_chg',
             'establishments':'qtrly_estabs', 'establishment_growth':'oty_qtrly_estabs_pct_chg'
         }[metric]
         df['value'] = pd.to_numeric(df[col], errors='coerce')
-        df['county_name'] = df.get('area_title', df['fips'])
+        df['county_name'] = df['fips']  # The map uses names from its local boundary file.
         return df[['fips','county_name','value']], label, 'Live/keyless BLS QCEW 2026 Q1 county totals.'
     if source == 'census':
         df = census_counties(state_fips).copy()
@@ -215,18 +213,21 @@ def render_map(selected_state, state_metric, county_metric, income_store):
             fig.update_layout(margin=dict(l=0,r=0,t=10,b=0), coloraxis_colorbar_title=label)
             return fig, 'U.S. State Economic Map', {'display':'none'}, {}, {'display':'none'}, note
 
-        df, label, note = _county_df(selected_state, county_metric)
-        geojson = get_county_geojson()
-        fig = px.choropleth(
-            df, geojson=geojson, locations='fips', color='value',
-            featureidkey='id', hover_name='county_name', custom_data=['value'],
-            color_continuous_scale='Magma'
-        )
-        fig.update_geos(fitbounds='locations', visible=False)
-    
-
-        fig.update_traces(marker_line_color='white', marker_line_width=0.7, hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.2f}<extra></extra>')
-        fig.update_layout(margin=dict(l=0,r=0,t=10,b=0), coloraxis_colorbar_title=label)
+        geojson = county_boundaries(ABBR_TO_FIPS[selected_state])
+        if county_metric == 'boundaries':
+            fig, _, count = county_figure(geojson)
+            note = (f'{count} county / county-equivalent boundaries. Hover for names; click for details. '
+                    'Choose an economic measure above to color the counties. No economic API is needed for this boundary view.')
+        else:
+            try:
+                df, label, note = _county_df(selected_state, county_metric)
+                fig, matched, count = county_figure(geojson, df, label)
+                note += (f' Data matched to {matched} of {count} displayed county boundaries. '
+                         'Counties without matched data stay slate blue; white lines show every boundary.')
+            except Exception as exc:
+                fig, _, count = county_figure(geojson)
+                note = (f'{count} county boundaries remain available. The selected economic measure is unavailable: {exc}. '
+                        'Choose County boundaries or another measure. No missing values are displayed as zero.')
         return fig, f'{ABBR_TO_NAME[selected_state]} County Explorer', {}, {'display':'none'}, {}, note
     except (CensusAPIError, BEAAPIError, BLSAPIError, GeoJSONError) as exc:
         return _empty_figure(str(exc)), 'Data source needs attention', ({'display':'none'} if not selected_state else {}), {}, {'display':'none'} if not selected_state else {}, str(exc)
@@ -245,22 +246,20 @@ def county_profile(click_data, selected_state):
     if not click_data or not click_data.get('points'):
         return html.Div([html.H3(f'{ABBR_TO_NAME[selected_state]}'), html.P('Click a county for a profile.')])
     fips = str(click_data['points'][0].get('location',''))
-    if len(fips) != 5:
+    if len(fips) != 5 or not fips.startswith(ABBR_TO_FIPS[selected_state]):
         return html.Div([html.H3(f'{ABBR_TO_NAME[selected_state]}'), html.P('Click a county for a profile.')])
+    county_name = fips
+    for feature in county_boundaries(ABBR_TO_FIPS[selected_state])['features']:
+        if feature['id'] == fips:
+            properties = feature.get('properties', {})
+            county_name = f"{properties.get('NAME', fips)} {properties.get('LSAD', '')}".strip()
+            break
     try:
         b = bls_counties(ABBR_TO_FIPS[selected_state])
         row = b[b['fips'].eq(fips)].head(1)
         if row.empty:
-            return html.P('No BLS county record found for this map feature.')
+            return html.Div([html.H3(county_name), html.P('No BLS record matches this county boundary. The county map remains available.', className='api-warning')])
         r = row.iloc[0]
-        county_name = fips
-        try:
-            t = get_area_titles()
-            m = t[t['area_fips'].eq(fips)]
-            if not m.empty:
-                county_name = m.iloc[0]['area_title']
-        except Exception:
-            pass
         cards = [
             ('Average weekly wage', f'${float(r.get("avg_wkly_wage",0)):,.0f}'),
             ('Employment growth YoY', f'{float(r.get("oty_month3_emplvl_pct_chg",0)):.1f}%'),
@@ -286,4 +285,4 @@ def county_profile(click_data, selected_state):
             html.P('BLS values are 2026 Q1. Census values appear when CENSUS_API_KEY is configured.', className='muted small')
         ])
     except Exception as exc:
-        return html.Div(f'County profile unavailable: {exc}', className='api-warning')
+        return html.Div([html.H3(county_name), html.P(f'County economic data unavailable: {exc}. You can still explore the county boundaries.', className='api-warning')])
