@@ -1,3 +1,6 @@
+# AI ASSISTANCE DISCLOSURE
+# ChatGPT helped draft regression cases for county geometry, API fallbacks, and
+# FIPS matching. The team must review and understand each assertion.
 import pandas as pd
 import pytest
 

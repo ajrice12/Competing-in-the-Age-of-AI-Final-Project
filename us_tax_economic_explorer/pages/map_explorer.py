@@ -85,7 +85,8 @@ layout = html.Div([
     html.Div([
         dcc.Loading(dcc.Graph(id='economic-map', config={'displayModeBar': False}, style={'height':'650px'}), type='circle',
                     overlay_style={'visibility': 'visible', 'opacity': .6})
-    ], className='panel map-panel'),
+    ], className='panel map-panel', role='img',
+       **{'aria-label': 'Interactive choropleth map of U.S. states with county drilldown'}),
     html.Div(id='county-profile', className='panel'),
     html.P(['Sales-tax colors are available at state level. County maps retain economic indicators; '
             'a ZIP lookup below provides a separate local estimate, not a county-wide rate. ',
@@ -203,14 +204,16 @@ def render_map(selected_state, state_metric, county_metric, income_store):
             df = df.merge(sales, on='abbr', how='left', validate='one_to_one')
             fig = px.choropleth(
                 df, locations='abbr', locationmode='USA-states', color='value', scope='usa',
-                hover_name='state', custom_data=['value', *SALES_METRICS], color_continuous_scale='Magma'
+                hover_name='state', custom_data=['value', *SALES_METRICS],
+                color_continuous_scale=[[0, '#14213d'], [.35, '#315f9c'], [.7, '#d7b35a'], [1, '#b22234']]
             )
             suffix = '%' if state_metric in SALES_METRICS else ''
             fig.update_traces(hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.3f}'+suffix+
                               '<br><br>Sales tax • July 1, 2026<br>State: %{customdata[1]:.3f}%'
                               '<br>Average local: %{customdata[2]:.3f}%<br>Average combined: %{customdata[3]:.3f}%'
                               '<br>State averages; not address rates<extra></extra>')
-            fig.update_layout(margin=dict(l=0,r=0,t=10,b=0), coloraxis_colorbar_title=label)
+            fig.update_layout(margin=dict(l=0,r=0,t=10,b=0), coloraxis_colorbar_title=label,
+                              paper_bgcolor='rgba(0,0,0,0)')
             return fig, 'U.S. State Economic Map', {'display':'none'}, {}, {'display':'none'}, note
 
         geojson = county_boundaries(ABBR_TO_FIPS[selected_state])

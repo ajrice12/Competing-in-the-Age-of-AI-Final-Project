@@ -1,3 +1,7 @@
+# AI ASSISTANCE DISCLOSURE
+# ChatGPT helped draft the sales-tax comparison, ZIP-result presentation,
+# accessibility labels, and explanatory copy. The team must review and
+# understand the displayed calculations and limitations.
 """Shared sales-tax panels; callbacks stay independent of economic API calls."""
 from datetime import date
 import math
@@ -65,7 +69,8 @@ def comparison_panel():
             dcc.Dropdown(id='home-sales-metric', options=[{'label': v, 'value': k} for k, v in SALES_METRICS.items()], value='sales_combined_average', clearable=False),
         ], className='control-block'),
         html.P([source_note(), ' ', html.A('Source and methodology', href=source_url(), target='_blank', rel='noopener noreferrer')], className='status-note'),
-        dcc.Graph(id='home-sales-chart', config={'displayModeBar': False}),
+        html.Div(dcc.Graph(id='home-sales-chart', config={'displayModeBar': False}),
+                 role='img', **{'aria-label': 'Bar chart comparing state and average local sales-tax rates'}),
         html.Div(id='home-sales-table', className='sales-table-wrap'),
         dcc.Link('Explore sales tax on the map →', href='/map', className='sales-map-link'),
     ], className='panel sales-section')
@@ -76,7 +81,9 @@ def comparison_view(metric):
     df = state_sales_taxes().sort_values([metric, 'state'], ascending=[False, True])
     fig = px.bar(df, x='abbr', y=metric, hover_name='state', labels={'abbr': 'State / D.C.', metric: SALES_METRICS[metric]}, custom_data=['sales_state_rate', 'sales_local_average', 'sales_combined_average'])
     fig.update_traces(hovertemplate='<b>%{hovertext}</b><br>State: %{customdata[0]:.3f}%<br>Average local: %{customdata[1]:.3f}%<br>Average combined: %{customdata[2]:.3f}%<extra></extra>')
-    fig.update_layout(template='plotly_white', height=440, margin=dict(l=20, r=20, t=20, b=60), yaxis_ticksuffix='%')
+    fig.update_traces(marker_color='#315f9c', marker_line_color='#f7f2e7', marker_line_width=.5)
+    fig.update_layout(template='plotly_white', height=440, margin=dict(l=20, r=20, t=20, b=60),
+                      yaxis_ticksuffix='%', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#fffdf8')
     table = html.Table([
         html.Caption('All 50 states and D.C. • effective July 1, 2026'),
         html.Thead(html.Tr([html.Th(x, scope='col') for x in ['State', 'State rate', 'Average local', 'Average combined']])),

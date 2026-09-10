@@ -1,4 +1,7 @@
 from copy import deepcopy
+# AI ASSISTANCE DISCLOSURE
+# ChatGPT helped draft validation, parsing, and UI regression tests for the
+# sales-tax feature. The team must review and understand each assertion.
 import json
 import math
 

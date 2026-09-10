@@ -6,6 +6,13 @@ A multi-page Python Dash application that answers:
 
 The app combines a simplified 2026 state income-tax estimator with live/current government economic data. Users can enter an income, rank states, hover over a U.S. choropleth, click a state to drill into counties, inspect county labor/economic indicators, compare states, and view national rankings.
 
+The bundled geography contains **3,221 county/county-equivalent features**, and
+the dated sales-tax snapshot contains **all 50 states plus D.C. (51 rows)**.
+Government API row counts vary by release and selected geography. One recurring
+cleaning problem is that agencies publish geographic identifiers in different
+formats, so the app pads, validates, and joins five-digit county FIPS codes while
+retaining unmatched boundaries instead of silently dropping them.
+
 ## Audience
 
 The intended user is a person comparing places to live or work, a business analyst evaluating state/county markets, or a regional economic-development analyst who wants a fast state-to-county comparison tool.
@@ -105,6 +112,11 @@ The app downloads this once and caches it in `data/` when possible.
 | `property_tax_income_pct` | Derived | State/County | `median_real_estate_tax / median_household_income * 100`; a proxy, not a personalized tax bill |
 | `real_gdp_millions` | BEA | State | Real GDP value returned by BEA Regional API |
 | `personal_income_thousands` | BEA | County | County personal income returned by BEA Regional API |
+| `sales_state_rate` | Tax Foundation | State | State general sales-tax rate as of July 1, 2026 |
+| `sales_local_average` | Tax Foundation | State | Population-weighted average local rate; not a county rate |
+| `sales_combined_average` | Derived/source table | State | State rate plus statewide average local rate |
+| `state`, `county`, `city`, `local` | SalesTaxZip | ZIP estimate | Provider-reported components for one validated ZIP lookup |
+| `combined` | SalesTaxZip | ZIP estimate | Combined general sales-tax estimate for one ZIP; not a county average |
 
 ## Cleaning and transformation performed
 
@@ -149,16 +161,16 @@ pip install -r requirements.txt
 
 ### 3. Configure API keys
 
-Copy `.env.example` to `.env`:
+Copy the repository-root `.env.example` to this app folder as `.env`:
 
 ```bash
-cp .env.example .env
+cp ../.env.example .env
 ```
 
 On Windows PowerShell:
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item ../.env.example .env
 ```
 
 Add your Census key:

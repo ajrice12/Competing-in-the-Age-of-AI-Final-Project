@@ -40,7 +40,8 @@ layout = html.Div([
         html.Div([html.Label('Metric'), dcc.Dropdown(id='compare-metric', options=[{'label':v,'value':k} for k,v in METRICS.items()], value='estimated_tax', clearable=False)], className='control-block'),
     ], className='control-row'),
     html.Div(id='compare-note', className='status-note'),
-    html.Div([dcc.Graph(id='compare-chart', config={'displayModeBar':False})], className='panel')
+    html.Div([dcc.Graph(id='compare-chart', config={'displayModeBar':False})], className='panel',
+             role='img', **{'aria-label': 'Bar chart comparing the selected states'})
 ])
 
 @callback(
@@ -81,8 +82,10 @@ def compare_states(states, metric, income_store):
             df['value'] = df[metric]
             note = 'Census ACS 2024 5-year API.'
         fig = px.bar(df, x='state', y='value', labels={'state':'','value':METRICS[metric]})
-        fig.update_layout(template='plotly_white', margin=dict(l=20,r=20,t=20,b=20), height=500)
-        fig.update_traces(hovertemplate='<b>%{x}</b><br>%{y:,.2f}<extra></extra>')
+        fig.update_layout(template='plotly_white', margin=dict(l=20,r=20,t=20,b=20), height=500,
+                          paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#fffdf8')
+        fig.update_traces(hovertemplate='<b>%{x}</b><br>%{y:,.2f}<extra></extra>',
+                          marker_color='#315f9c', marker_line_color='#f7f2e7', marker_line_width=.5)
         return fig, note
     except CensusAPIError as exc:
         fig = go.Figure().add_annotation(text=str(exc), x=.5, y=.5, showarrow=False)

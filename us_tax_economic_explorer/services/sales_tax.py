@@ -1,3 +1,7 @@
+# AI ASSISTANCE DISCLOSURE
+# ChatGPT helped identify the public ZIP endpoint, draft validation and
+# normalization logic, and document source limitations. The team must review,
+# understand, and verify rates and behavior before submission.
 """Free, bounded ZIP lookups and an offline nationwide comparison snapshot.
 
 AI assistance: Codex implemented this service and its failure-path tests.

@@ -1,3 +1,7 @@
+# AI ASSISTANCE DISCLOSURE
+# ChatGPT helped isolate county geometry from API availability, normalize FIPS
+# joins, preserve unmatched boundaries, and draft regression coverage. The team
+# must review and understand the map and its data limitations.
 """Draw county geography independently of the availability of economic data."""
 from __future__ import annotations
 
@@ -47,7 +51,8 @@ def county_figure(geojson, data=None, label='County boundaries'):
             county_names = dict(zip(ids, names))
             fig.add_trace(go.Choropleth(
                 geojson=geojson, featureidkey='id', locationmode='geojson-id', locations=values['fips'], z=values['value'],
-                text=values['fips'].map(county_names), colorscale='Magma',
+                text=values['fips'].map(county_names),
+                colorscale=[[0, '#14213d'], [.35, '#315f9c'], [.7, '#d7b35a'], [1, '#b22234']],
                 marker_line_color='white', marker_line_width=1,
                 colorbar=dict(title=dict(text=label, side='top'), orientation='h',
                               x=.5, xanchor='center', y=-.06, len=.85, thickness=14),
@@ -57,5 +62,5 @@ def county_figure(geojson, data=None, label='County boundaries'):
     fig.update_geos(fitbounds='locations', visible=False, scope='world',
                     projection_type='mercator')
     fig.update_layout(margin=dict(l=12, r=12, t=12, b=65 if matched else 12),
-                      paper_bgcolor='white', height=650, showlegend=False)
+                      paper_bgcolor='rgba(0,0,0,0)', height=650, showlegend=False)
     return fig, matched, len(ids)

@@ -67,7 +67,7 @@ layout = html.Div([
             html.H3('Estimated 2026 state income tax at your income'),
             html.P('Simplified estimator; local income taxes and many credits/special rules are excluded.', className='muted'),
             dcc.Graph(id='tax-ranking-chart', config={'displayModeBar': False})
-        ], className='panel')
+        ], className='panel', role='img', **{'aria-label': 'Ranking chart of estimated state income taxes'})
     ]),
     comparison_panel(),
     lookup_panel('home-sales'),
@@ -110,7 +110,9 @@ def analyze_income(_clicks, income, filing_status):
         custom_data=['effective_rate']
     )
     fig.update_traces(hovertemplate='<b>%{y}</b><br>Tax: $%{x:,.0f}<br>Effective rate: %{customdata[0]:.2f}%<extra></extra>')
-    fig.update_layout(margin=dict(l=10,r=10,t=10,b=10), height=470, template='plotly_white')
+    fig.update_traces(marker_color='#315f9c', marker_line_color='#f7f2e7', marker_line_width=.5)
+    fig.update_layout(margin=dict(l=10,r=10,t=10,b=10), height=470, template='plotly_white',
+                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#fffdf8')
 
     county_children = []
     county_status = 'BLS map metrics work without keys. Census county tax-pressure rankings need CENSUS_API_KEY.'
