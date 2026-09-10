@@ -205,7 +205,7 @@ def render_map(selected_state, state_metric, county_metric, income_store):
             fig = px.choropleth(
                 df, locations='abbr', locationmode='USA-states', color='value', scope='usa',
                 hover_name='state', custom_data=['value', *SALES_METRICS],
-                color_continuous_scale=[[0, '#14213d'], [.35, '#315f9c'], [.7, '#d7b35a'], [1, '#b22234']]
+                color_continuous_scale='Magma'
             )
             suffix = '%' if state_metric in SALES_METRICS else ''
             fig.update_traces(hovertemplate='<b>%{hovertext}</b><br>'+label+': %{customdata[0]:,.3f}'+suffix+

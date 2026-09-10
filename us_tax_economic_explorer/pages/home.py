@@ -57,7 +57,9 @@ layout = html.Div([
         html.Div([html.P('Lowest estimated state taxes', className='card-kicker'), html.Div(id='lowest-states')], className='panel'),
         html.Div([
             html.P('County tax-pressure proxy', className='card-kicker'),
-            html.P('Median real-estate tax ÷ median household income (ACS). Not a personalized county income-tax estimate.', className='muted small'),
+            html.P('Median real-estate tax paid ÷ median household income × 100, using 2024 ACS county estimates. '
+                   'It is a broad housing-cost pressure signal—not a county sales-tax rate or a personalized tax bill.',
+                   className='muted small'),
             html.Div(id='county-tax-ranking')
         ], className='panel'),
     ], className='three-col'),
@@ -129,7 +131,11 @@ def analyze_income(_clicks, income, filing_status):
         ]
         county_status = 'Census ACS connected. County tax-pressure proxy is using 2024 ACS 5-year estimates.'
     except CensusAPIError as exc:
-        county_children = html.Div(str(exc), className='api-warning')
+        county_children = html.Div([
+            html.P(str(exc)),
+            html.A('Request and activate a free Census API key',
+                   href='https://api.census.gov/data/key_signup.html', target='_blank', rel='noopener noreferrer')
+        ], className='api-warning')
     except Exception as exc:
         county_children = html.Div(f'County ranking unavailable: {exc}', className='api-warning')
 

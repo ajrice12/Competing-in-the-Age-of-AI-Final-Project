@@ -49,7 +49,8 @@ This source works without an API key.
 
 - API documentation: https://www.census.gov/data/developers/data-sets/acs-5year/2024.html
 - Project vintage: **2024 ACS 5-year**.
-- Census currently requires an API key for these calls.
+- Census currently requires an activated API key for these calls. The key is free,
+  delivered by email, and must be activated before use.
 - Request a free key: https://api.census.gov/data/key_signup.html
 
 Example state query structure:
@@ -109,7 +110,7 @@ The app downloads this once and caches it in `data/` when possible.
 | `poverty_universe` | Census ACS | State/County | Population for whom poverty status is determined (`B17001_001E`) |
 | `below_poverty` | Census ACS | State/County | People below poverty threshold (`B17001_002E`) |
 | `poverty_rate` | Derived | State/County | `below_poverty / poverty_universe * 100` |
-| `property_tax_income_pct` | Derived | State/County | `median_real_estate_tax / median_household_income * 100`; a proxy, not a personalized tax bill |
+| `property_tax_income_pct` | Derived | State/County | `median_real_estate_tax / median_household_income * 100`; compares two county medians as a broad housing-cost pressure signal, not a county sales-tax rate or personalized tax bill |
 | `real_gdp_millions` | BEA | State | Real GDP value returned by BEA Regional API |
 | `personal_income_thousands` | BEA | County | County personal income returned by BEA Regional API |
 | `sales_state_rate` | Tax Foundation | State | State general sales-tax rate as of July 1, 2026 |

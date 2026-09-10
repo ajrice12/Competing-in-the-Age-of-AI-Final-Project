@@ -51,8 +51,7 @@ def county_figure(geojson, data=None, label='County boundaries'):
             county_names = dict(zip(ids, names))
             fig.add_trace(go.Choropleth(
                 geojson=geojson, featureidkey='id', locationmode='geojson-id', locations=values['fips'], z=values['value'],
-                text=values['fips'].map(county_names),
-                colorscale=[[0, '#14213d'], [.35, '#315f9c'], [.7, '#d7b35a'], [1, '#b22234']],
+                text=values['fips'].map(county_names), colorscale='Magma',
                 marker_line_color='white', marker_line_width=1,
                 colorbar=dict(title=dict(text=label, side='top'), orientation='h',
                               x=.5, xanchor='center', y=-.06, len=.85, thickness=14),
