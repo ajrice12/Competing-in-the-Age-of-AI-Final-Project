@@ -12,6 +12,7 @@ from services.geojson import get_county_geojson, GeoJSONError
 
 
 def county_boundaries(state_fips):
+    """Select one state's county shapes from the nationwide boundary file."""
     features = [f for f in get_county_geojson()['features']
                 if str(f.get('id', '')).startswith(state_fips)]
     if not features:
@@ -20,7 +21,7 @@ def county_boundaries(state_fips):
 
 
 def county_figure(geojson, data=None, label='County boundaries'):
-    """Keep every county clickable; overlay only finite, matching observations."""
+    """Draw all county outlines, then color only counties with usable data."""
     ids = [str(f['id']) for f in geojson['features']]
     names = []
     for feature in geojson['features']:
@@ -28,6 +29,7 @@ def county_figure(geojson, data=None, label='County boundaries'):
         name = properties.get('NAME', feature['id'])
         kind = properties.get('LSAD', '')
         names.append(f'{name} {kind}'.strip())
+    # This base layer guarantees visible white borders and clickable counties.
     boundary_only = data is None
     fig = go.Figure(go.Choropleth(
         geojson=geojson, featureidkey='id', locationmode='geojson-id', locations=ids, z=[0] * len(ids),
@@ -46,6 +48,8 @@ def county_figure(geojson, data=None, label='County boundaries'):
         values = values.drop_duplicates('fips')
         matched = len(values)
         if matched:
+            # A second layer adds the Magma colors without removing counties
+            # that have no matching observation.
             # County names come from the same geography being displayed, even
             # when the optional area-title API is unavailable.
             county_names = dict(zip(ids, names))

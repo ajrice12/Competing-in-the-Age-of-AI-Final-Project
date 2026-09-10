@@ -27,6 +27,7 @@ class CensusAPIError(RuntimeError):
 
 
 def _key() -> str:
+    """Read the Census key from the environment and give a useful setup error."""
     key = os.getenv('CENSUS_API_KEY', '').strip()
     if not key:
         raise CensusAPIError(
@@ -38,12 +39,14 @@ def _key() -> str:
 
 
 def _clean_numeric(series: pd.Series) -> pd.Series:
+    """Convert Census text values to numbers and blank out missing-value codes."""
     s = pd.to_numeric(series, errors='coerce')
     # ACS uses negative sentinel values for unavailable estimates.
     return s.mask(s < 0)
 
 
 def _request(params: dict, year: int = 2024) -> pd.DataFrame:
+    """Call ACS and turn its header row plus data rows into a DataFrame."""
     params = {**params, 'key': _key()}
     try:
         r = requests.get(BASE.format(year=year), params=params, timeout=25)
@@ -58,6 +61,7 @@ def _request(params: dict, year: int = 2024) -> pd.DataFrame:
 
 @lru_cache(maxsize=4)
 def get_state_metrics(year: int = 2024) -> pd.DataFrame:
+    """Fetch state ACS facts and calculate the two percentages used by the app."""
     get_vars = 'NAME,' + ','.join(VARIABLES)
     df = _request({'get': get_vars, 'for': 'state:*'}, year)
     df = df.rename(columns=VARIABLES)
@@ -71,6 +75,7 @@ def get_state_metrics(year: int = 2024) -> pd.DataFrame:
 
 @lru_cache(maxsize=8)
 def get_county_metrics(state_fips: str | None = None, year: int = 2024) -> pd.DataFrame:
+    """Fetch county ACS facts nationwide or for one state and create full FIPS IDs."""
     get_vars = 'NAME,' + ','.join(VARIABLES)
     params = {'get': get_vars, 'for': 'county:*', 'in': f'state:{state_fips}' if state_fips else 'state:*'}
     df = _request(params, year)

@@ -99,12 +99,14 @@ layout = html.Div([
           Input('selected-state', 'data'), State('map-sales-zip', 'value'), State('map-sales-purchase', 'value'),
           prevent_initial_call=True)
 def show_map_sales_lookup(clicks, selected_state, zip_code, purchase):
+    """Show a ZIP quote, checking it belongs to the state being viewed."""
     if ctx.triggered_id != 'map-sales-lookup' or not clicks:
         return html.P('Enter a ZIP code and select Look up sales tax for this view.', className='muted small')
     return quote_view(zip_code, purchase, selected_state)
 
 
 def _empty_figure(message: str):
+    """Return a valid map-sized figure that explains why data is unavailable."""
     fig = go.Figure()
     fig.add_annotation(text=message, x=.5, y=.5, xref='paper', yref='paper', showarrow=False, font={'size':16})
     fig.update_layout(template='plotly_white', margin=dict(l=20,r=20,t=20,b=20))
@@ -112,6 +114,7 @@ def _empty_figure(message: str):
 
 
 def _state_df(metric: str, income_store: dict | None):
+    """Translate any state-level source into state, abbreviation, and value."""
     label, source = STATE_METRICS[metric]
     if source == 'sales':
         df = state_sales_taxes()
@@ -143,6 +146,7 @@ def _state_df(metric: str, income_store: dict | None):
 
 
 def _county_df(state_abbr: str, metric: str):
+    """Translate a county API result into the FIPS/value format used by the map."""
     state_fips = ABBR_TO_FIPS[state_abbr]
     label, source = COUNTY_METRICS[metric]
     if source == 'bls':
@@ -173,6 +177,7 @@ def _county_df(state_abbr: str, metric: str):
     prevent_initial_call=True,
 )
 def choose_state(click_data, _back, current):
+    """Store a clicked two-letter state code or clear it with the Back button."""
     if ctx.triggered_id == 'back-to-us':
         return None
     if not click_data or not click_data.get('points'):
@@ -197,6 +202,7 @@ def choose_state(click_data, _back, current):
    
 )
 def render_map(selected_state, state_metric, county_metric, income_store):
+    """Draw the national map or swap it for the selected state's counties."""
     try:
         if not selected_state:
             df, label, note = _state_df(state_metric, income_store)
@@ -216,6 +222,8 @@ def render_map(selected_state, state_metric, county_metric, income_store):
                               paper_bgcolor='rgba(0,0,0,0)')
             return fig, 'U.S. State Economic Map', {'display':'none'}, {}, {'display':'none'}, note
 
+        # County outlines come from the bundled geography file, so users can
+        # still see and click counties when an economic API is unavailable.
         geojson = county_boundaries(ABBR_TO_FIPS[selected_state])
         if county_metric == 'boundaries':
             fig, _, count = county_figure(geojson)
@@ -244,6 +252,7 @@ def render_map(selected_state, state_metric, county_metric, income_store):
     Input('selected-state','data'),
 )
 def county_profile(click_data, selected_state):
+    """Build the detail cards for the county most recently clicked."""
     if not selected_state:
         return html.Div([html.H3('How to use the map'), html.P('Hover over states for values. Click a state to drill into counties.')])
     if not click_data or not click_data.get('points'):
@@ -269,6 +278,8 @@ def county_profile(click_data, selected_state):
             ('Establishments', f'{float(r.get("qtrly_estabs",0)):,.0f}'),
             ('Establishment growth YoY', f'{float(r.get("oty_qtrly_estabs_pct_chg",0)):.1f}%'),
         ]
+        # BLS supplies the core profile. Census cards are appended when that
+        # optional connection works, without hiding the BLS results on failure.
         try:
             c = census_counties(ABBR_TO_FIPS[selected_state])
             cr = c[c['fips'].eq(fips)].head(1)

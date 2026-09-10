@@ -19,6 +19,7 @@ class BEAAPIError(RuntimeError):
 
 
 def _key() -> str:
+    """Read the optional BEA key and explain what is missing when unset."""
     key = os.getenv('BEA_API_KEY', '').strip()
     if not key:
         raise BEAAPIError('BEA metrics require BEA_API_KEY in .env.')
@@ -26,6 +27,7 @@ def _key() -> str:
 
 
 def _get(table: str, line_code: str, year: str, geofips: str) -> pd.DataFrame:
+    """Send a Regional-data query to BEA and return its result rows as a table."""
     params = {
         'UserID': _key(), 'method': 'GetData', 'datasetname': 'Regional',
         'TableName': table, 'LineCode': line_code, 'Year': year,
@@ -42,11 +44,13 @@ def _get(table: str, line_code: str, year: str, geofips: str) -> pd.DataFrame:
 
 
 def _num(s: pd.Series) -> pd.Series:
+    """Remove BEA commas and missing markers before converting text to numbers."""
     return pd.to_numeric(s.astype(str).str.replace(',', '', regex=False).str.replace('(NA)', '', regex=False), errors='coerce')
 
 
 @lru_cache(maxsize=4)
 def get_state_real_gdp(year: str = '2024') -> pd.DataFrame:
+    """Return real GDP and state FIPS codes for the national state map."""
     # Official BEA API guide example uses SAGDP9N LineCode=2 for real GDP, all states.
     df = _get('SAGDP9N', '2', year, 'STATE')
     df['state_fips'] = df['GeoFIPS'].astype(str).str.strip().str[:2]
@@ -56,6 +60,7 @@ def get_state_real_gdp(year: str = '2024') -> pd.DataFrame:
 
 @lru_cache(maxsize=8)
 def get_county_personal_income(year: str = '2024') -> pd.DataFrame:
+    """Return personal income and five-digit FIPS codes for all counties."""
     # Official guide example: CAINC1 LineCode=1 returns personal income for all counties.
     df = _get('CAINC1', '1', year, 'COUNTY')
     df['fips'] = df['GeoFIPS'].astype(str).str.strip().str[:5]

@@ -20,6 +20,7 @@ class BLSAPIError(RuntimeError):
 
 
 def _download(year: int, quarter: int) -> pd.DataFrame:
+    """Download one nationwide quarterly employment-and-wage CSV from BLS."""
     url = BASE.format(year=year, quarter=quarter)
     try:
         r = requests.get(url, timeout=40)
@@ -31,6 +32,7 @@ def _download(year: int, quarter: int) -> pd.DataFrame:
 
 @lru_cache(maxsize=8)
 def get_qcew(year: int = 2026, quarter: int = 1) -> pd.DataFrame:
+    """Clean BLS identifiers and numbers once, then cache the reusable table."""
     df = _download(year, quarter)
     # QCEW aggregation levels 50 = statewide total covered, 70 = county total covered.
     df['agglvl_code'] = df['agglvl_code'].astype(str).str.zfill(2)
@@ -47,6 +49,7 @@ def get_qcew(year: int = 2026, quarter: int = 1) -> pd.DataFrame:
 
 @lru_cache(maxsize=8)
 def get_state_metrics(year: int = 2026, quarter: int = 1) -> pd.DataFrame:
+    """Keep the all-industry total row for each state."""
     df = get_qcew(year, quarter)
     out = df[df['agglvl_code'].eq('50')].copy()
     out['state_fips'] = out['area_fips'].str[:2]
@@ -55,6 +58,7 @@ def get_state_metrics(year: int = 2026, quarter: int = 1) -> pd.DataFrame:
 
 @lru_cache(maxsize=64)
 def get_county_metrics(state_fips: str, year: int = 2026, quarter: int = 1) -> pd.DataFrame:
+    """Keep county total rows belonging to one state's two-digit FIPS code."""
     df = get_qcew(year, quarter)
     out = df[df['agglvl_code'].eq('70') & df['area_fips'].str.startswith(str(state_fips).zfill(2))].copy()
     out['fips'] = out['area_fips']
@@ -64,6 +68,7 @@ def get_county_metrics(state_fips: str, year: int = 2026, quarter: int = 1) -> p
 
 @lru_cache(maxsize=2)
 def get_area_titles() -> pd.DataFrame:
+    """Download BLS's lookup table that translates area codes into names."""
     try:
         r = requests.get(AREA_TITLES, timeout=30)
         r.raise_for_status()

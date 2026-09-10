@@ -20,6 +20,7 @@ class GeoJSONError(RuntimeError):
 
 @lru_cache(maxsize=1)
 def get_county_geojson() -> dict:
+    """Load bundled county shapes, downloading and saving them only if absent."""
     if LOCAL_PATH.exists() and LOCAL_PATH.stat().st_size > 0:
         return json.loads(LOCAL_PATH.read_text(encoding='utf-8'))
     try:

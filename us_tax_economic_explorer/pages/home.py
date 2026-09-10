@@ -18,6 +18,7 @@ dash.register_page(__name__, path='/', name='Home')
 
 
 def _rank_cards(df, highest=True, n=5):
+    """Turn the first or last few tax rows into the small ranking cards."""
     use = df.head(n) if highest else df.tail(n).sort_values('estimated_tax')
     return [
         html.Div([
@@ -78,12 +79,14 @@ layout = html.Div([
 
 @callback(Output('home-sales-chart', 'figure'), Output('home-sales-table', 'children'), Input('home-sales-metric', 'value'))
 def show_sales_comparison(metric):
+    """Redraw the sales-tax chart and table when its measure changes."""
     return comparison_view(metric)
 
 
 @callback(Output('home-sales-result', 'children'), Input('home-sales-lookup', 'n_clicks'),
           State('home-sales-zip', 'value'), State('home-sales-purchase', 'value'), prevent_initial_call=True)
 def show_sales_lookup(clicks, zip_code, purchase):
+    """Run the ZIP lookup only after the user clicks its button."""
     return quote_view(zip_code, purchase)
 
 
@@ -99,6 +102,7 @@ def show_sales_lookup(clicks, zip_code, purchase):
     State('filing-status', 'value'),
 )
 def analyze_income(_clicks, income, filing_status):
+    """Validate the scenario, rank states, and refresh every home-page result."""
     try:
         income = max(float(income or 0), 0)
     except (TypeError, ValueError):
@@ -116,6 +120,7 @@ def analyze_income(_clicks, income, filing_status):
     fig.update_layout(margin=dict(l=10,r=10,t=10,b=10), height=470, template='plotly_white',
                       paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#fffdf8')
 
+    # Census is optional, so an API problem should not break the tax estimator.
     county_children = []
     county_status = 'BLS map metrics work without keys. Census county tax-pressure rankings need CENSUS_API_KEY.'
     try:

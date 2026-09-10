@@ -26,18 +26,21 @@ Bracket = Tuple[float, float]  # (threshold, rate)
 
 @dataclass(frozen=True)
 class FilingRule:
+    """The brackets and basic deductions for one filing status."""
     brackets: List[Bracket]
     standard_deduction: float = 0.0
     personal_exemption: float = 0.0
 
 @dataclass(frozen=True)
 class StateRule:
+    """A state's single and joint rules plus a limitation note."""
     single: FilingRule
     joint: FilingRule
     note: str = ""
 
 
 def fr(brackets, sd=0, pe=0):
+    """Short helper that keeps the large state-rule table readable."""
     return FilingRule(brackets=brackets, standard_deduction=sd, personal_exemption=pe)
 
 # Thresholds are taxable-income thresholds. Dollar exemptions that operate like deductions
@@ -98,10 +101,13 @@ R: Dict[str, StateRule] = {
 
 
 def _progressive_tax(taxable_income: float, brackets: List[Bracket]) -> float:
+    """Apply each rate only to the slice of income inside its bracket."""
     if taxable_income <= 0 or not brackets:
         return 0.0
     brackets = sorted(brackets, key=lambda x: x[0])
     total = 0.0
+    # Moving through the thresholds prevents the highest rate from being
+    # applied to every dollar of income.
     for i, (threshold, rate) in enumerate(brackets):
         if taxable_income <= threshold:
             break
@@ -113,6 +119,7 @@ def _progressive_tax(taxable_income: float, brackets: List[Bracket]) -> float:
 
 
 def estimate_state_tax(state: str, gross_income: float, filing_status: str = 'single') -> dict:
+    """Estimate one state's tax after the modeled deduction and exemption."""
     if state not in R:
         raise KeyError(f'Unknown state: {state}')
     income = max(float(gross_income or 0), 0.0)
@@ -132,5 +139,6 @@ def estimate_state_tax(state: str, gross_income: float, filing_status: str = 'si
 
 
 def rank_states(gross_income: float, filing_status: str = 'single') -> pd.DataFrame:
+    """Estimate all 50 states and sort the largest bill to the smallest."""
     rows = [estimate_state_tax(state, gross_income, filing_status) for state in R if state != 'District of Columbia']
     return pd.DataFrame(rows).sort_values(['estimated_tax','state'], ascending=[False, True]).reset_index(drop=True)

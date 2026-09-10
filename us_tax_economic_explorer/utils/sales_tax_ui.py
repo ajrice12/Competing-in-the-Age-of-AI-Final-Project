@@ -14,6 +14,7 @@ from utils.geography import ABBR_TO_NAME
 
 
 def lookup_panel(prefix):
+    """Build a reusable ZIP and purchase input panel with unique component IDs."""
     return html.Section([
         html.P('LOCAL SALES TAX', className='eyebrow'),
         html.H3('Look up a ZIP-code estimate'),
@@ -32,6 +33,7 @@ def lookup_panel(prefix):
 
 
 def quote_view(zip_code, purchase, selected_state=None):
+    """Validate inputs and turn a ZIP service result into readable statistic cards."""
     try:
         amount = float(purchase)
         if not math.isfinite(amount) or not 0 <= amount <= 100000000:
@@ -60,6 +62,7 @@ def quote_view(zip_code, purchase, selected_state=None):
 
 
 def comparison_panel():
+    """Build the home-page controls and containers for state comparisons."""
     return html.Section([
         html.P('COMPARE SALES TAX', className='eyebrow'),
         html.H3('How do sales taxes compare across states?'),
@@ -77,6 +80,7 @@ def comparison_panel():
 
 
 def comparison_view(metric):
+    """Create the all-state sales-tax chart and accessible detail table."""
     metric = metric if metric in SALES_METRICS else 'sales_combined_average'
     df = state_sales_taxes().sort_values([metric, 'state'], ascending=[False, True])
     fig = px.bar(df, x='abbr', y=metric, hover_name='state', labels={'abbr': 'State / D.C.', metric: SALES_METRICS[metric]}, custom_data=['sales_state_rate', 'sales_local_average', 'sales_combined_average'])

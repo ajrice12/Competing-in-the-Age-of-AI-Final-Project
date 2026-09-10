@@ -51,14 +51,17 @@ class SalesTaxError(RuntimeError):
 
 @lru_cache(maxsize=1)
 def _snapshot():
+    """Read the saved 50-state comparison file once per running process."""
     return json.loads(SNAPSHOT.read_text(encoding='utf-8'))
 
 
 def state_sales_taxes():
+    """Return a fresh table so callers cannot change the cached snapshot."""
     return pd.DataFrame(_snapshot()['states']).copy()
 
 
 def source_note():
+    """Create the source and limitation note displayed beside comparisons."""
     data = _snapshot()
     return (f"Tax Foundation • effective {data['effective_date']} • saved comparison dataset. "
             'Local and combined rates are population-weighted state averages, not county or address rates. '
@@ -66,10 +69,12 @@ def source_note():
 
 
 def source_url():
+    """Return the original source link stored with the saved state data."""
     return _snapshot()['source_url']
 
 
 def _rate(value):
+    """Accept only a finite decimal rate between zero and 30 percent."""
     if isinstance(value, bool):
         raise ValueError('Boolean rate')
     number = float(value)
@@ -79,6 +84,7 @@ def _rate(value):
 
 
 def _validate(payload, zip_code):
+    """Reject incomplete or contradictory ZIP results before displaying them."""
     try:
         if payload.get('success') is not True:
             raise ValueError('Unsuccessful lookup')
@@ -144,6 +150,7 @@ def lookup_zip(zip_code):
 
 
 def _fallback(cached, message):
+    """Use an older valid quote when possible; otherwise show a clear error."""
     if cached:
         return dict(deepcopy(cached[1]), delivery=f'{message} Showing an older cached estimate.', stale=True)
     raise SalesTaxError(message + ' The saved state comparison remains available.')

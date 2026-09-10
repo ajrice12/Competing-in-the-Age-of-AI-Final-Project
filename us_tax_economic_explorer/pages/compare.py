@@ -52,11 +52,14 @@ layout = html.Div([
     Input('income-store','data'),
 )
 def compare_states(states, metric, income_store):
+    """Build one comparable value per selected state from the chosen source."""
     states = (states or [])[:5]
     if not states:
         fig = go.Figure().add_annotation(text='Select at least one state.', x=.5, y=.5, showarrow=False)
         return fig, 'No states selected.'
     try:
+        # Each measure comes from a different service, but all branches finish
+        # with the same simple columns: state and value.
         if metric in SALES_METRICS:
             df = state_sales_taxes()
             df = df[df['state'].isin(states)].copy()

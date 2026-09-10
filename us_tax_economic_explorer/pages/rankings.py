@@ -50,6 +50,7 @@ layout = html.Div([
     Input('income-store','data'),
 )
 def update_rankings(metric, income_store):
+    """Load the selected measure and return its top-15 chart and table."""
     try:
         ascending = False
         if metric in {'estimated_tax','effective_rate'}:
@@ -71,6 +72,7 @@ def update_rankings(metric, income_store):
             if metric == 'poverty_rate_low':
                 ascending = True
             note = 'Census ACS 2024 5-year API.'
+        # Poverty is the only measure where a smaller number earns a higher rank.
         df = df.dropna(subset=['state','value']).sort_values('value', ascending=ascending).head(15).reset_index(drop=True)
         df.insert(0,'rank',range(1,len(df)+1))
         plot_df = df.sort_values('value', ascending=not ascending)

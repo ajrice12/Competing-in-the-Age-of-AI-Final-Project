@@ -9,6 +9,7 @@ import dash
 from dash import Dash, dcc, html, page_container
 from dotenv import load_dotenv
 
+# Load local secrets and settings before any page imports an API service.
 load_dotenv()
 
 app = Dash(
@@ -20,6 +21,7 @@ app = Dash(
 )
 server = app.server
 
+# Dash discovers the files in pages/; this list controls the visible menu order.
 NAV_ITEMS = [
     ('Home / Tax Explorer', '/'),
     ('Interactive Map', '/map'),
@@ -28,6 +30,7 @@ NAV_ITEMS = [
 ]
 
 app.layout = html.Div([
+    # Keep the user's income scenario when they move between app pages.
     dcc.Store(id='income-store', storage_type='local', data={'income': 100000, 'filing_status': 'single'}),
     html.Header([
         html.Div([

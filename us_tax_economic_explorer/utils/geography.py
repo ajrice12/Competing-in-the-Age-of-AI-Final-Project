@@ -4,6 +4,8 @@
 # The team must review, run, edit, understand, and verify this file and its outputs
 # against the linked official sources before submission or presentation.
 
+# One trusted table keeps state names, postal abbreviations, and Census FIPS
+# codes aligned across every API and map join.
 STATE_META = {
     'Alabama': ('AL','01'), 'Alaska': ('AK','02'), 'Arizona': ('AZ','04'), 'Arkansas': ('AR','05'),
     'California': ('CA','06'), 'Colorado': ('CO','08'), 'Connecticut': ('CT','09'), 'Delaware': ('DE','10'),
@@ -20,6 +22,7 @@ STATE_META = {
     'West Virginia': ('WV','54'), 'Wisconsin': ('WI','55'), 'Wyoming': ('WY','56'),
 }
 
+# These reverse lookups let each data source use the identifier it provides.
 NAME_TO_ABBR = {name: meta[0] for name, meta in STATE_META.items()}
 ABBR_TO_NAME = {meta[0]: name for name, meta in STATE_META.items()}
 NAME_TO_FIPS = {name: meta[1] for name, meta in STATE_META.items()}
