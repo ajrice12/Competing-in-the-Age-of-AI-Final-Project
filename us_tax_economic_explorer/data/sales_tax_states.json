@@ -1,0 +1,417 @@
+{
+  "source": "Tax Foundation, State and Local Sales Tax Rates, Midyear 2026",
+  "source_url": "https://taxfoundation.org/data/all/state/2026-sales-tax-rates-midyear/",
+  "effective_date": "2026-07-01",
+  "retrieved_date": "2026-09-08",
+  "methodology": "Local and combined rates are population-weighted statewide averages, not county or address rates. Rates are percentages. See source footnotes for mandatory local components and special tax systems.",
+  "states": [
+    {
+      "state": "Alabama",
+      "abbr": "AL",
+      "fips": "01",
+      "sales_state_rate": 4.0,
+      "sales_local_average": 5.46,
+      "sales_combined_average": 9.46
+    },
+    {
+      "state": "Alaska",
+      "abbr": "AK",
+      "fips": "02",
+      "sales_state_rate": 0.0,
+      "sales_local_average": 1.82,
+      "sales_combined_average": 1.82
+    },
+    {
+      "state": "Arizona",
+      "abbr": "AZ",
+      "fips": "04",
+      "sales_state_rate": 5.6,
+      "sales_local_average": 2.94,
+      "sales_combined_average": 8.54
+    },
+    {
+      "state": "Arkansas",
+      "abbr": "AR",
+      "fips": "05",
+      "sales_state_rate": 6.5,
+      "sales_local_average": 2.98,
+      "sales_combined_average": 9.48
+    },
+    {
+      "state": "California",
+      "abbr": "CA",
+      "fips": "06",
+      "sales_state_rate": 7.25,
+      "sales_local_average": 1.78,
+      "sales_combined_average": 9.03
+    },
+    {
+      "state": "Colorado",
+      "abbr": "CO",
+      "fips": "08",
+      "sales_state_rate": 2.9,
+      "sales_local_average": 4.99,
+      "sales_combined_average": 7.89
+    },
+    {
+      "state": "Connecticut",
+      "abbr": "CT",
+      "fips": "09",
+      "sales_state_rate": 6.35,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 6.35
+    },
+    {
+      "state": "Delaware",
+      "abbr": "DE",
+      "fips": "10",
+      "sales_state_rate": 0.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 0.0
+    },
+    {
+      "state": "District of Columbia",
+      "abbr": "DC",
+      "fips": "11",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 6.0
+    },
+    {
+      "state": "Florida",
+      "abbr": "FL",
+      "fips": "12",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.98,
+      "sales_combined_average": 6.98
+    },
+    {
+      "state": "Georgia",
+      "abbr": "GA",
+      "fips": "13",
+      "sales_state_rate": 4.0,
+      "sales_local_average": 3.56,
+      "sales_combined_average": 7.56
+    },
+    {
+      "state": "Hawaii",
+      "abbr": "HI",
+      "fips": "15",
+      "sales_state_rate": 4.0,
+      "sales_local_average": 0.5,
+      "sales_combined_average": 4.5
+    },
+    {
+      "state": "Idaho",
+      "abbr": "ID",
+      "fips": "16",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.03,
+      "sales_combined_average": 6.03
+    },
+    {
+      "state": "Illinois",
+      "abbr": "IL",
+      "fips": "17",
+      "sales_state_rate": 6.25,
+      "sales_local_average": 2.73,
+      "sales_combined_average": 8.98
+    },
+    {
+      "state": "Indiana",
+      "abbr": "IN",
+      "fips": "18",
+      "sales_state_rate": 7.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 7.0
+    },
+    {
+      "state": "Iowa",
+      "abbr": "IA",
+      "fips": "19",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.94,
+      "sales_combined_average": 6.94
+    },
+    {
+      "state": "Kansas",
+      "abbr": "KS",
+      "fips": "20",
+      "sales_state_rate": 6.5,
+      "sales_local_average": 2.21,
+      "sales_combined_average": 8.71
+    },
+    {
+      "state": "Kentucky",
+      "abbr": "KY",
+      "fips": "21",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 6.0
+    },
+    {
+      "state": "Louisiana",
+      "abbr": "LA",
+      "fips": "22",
+      "sales_state_rate": 5.0,
+      "sales_local_average": 5.13,
+      "sales_combined_average": 10.13
+    },
+    {
+      "state": "Maine",
+      "abbr": "ME",
+      "fips": "23",
+      "sales_state_rate": 5.5,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 5.5
+    },
+    {
+      "state": "Maryland",
+      "abbr": "MD",
+      "fips": "24",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 6.0
+    },
+    {
+      "state": "Massachusetts",
+      "abbr": "MA",
+      "fips": "25",
+      "sales_state_rate": 6.25,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 6.25
+    },
+    {
+      "state": "Michigan",
+      "abbr": "MI",
+      "fips": "26",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 6.0
+    },
+    {
+      "state": "Minnesota",
+      "abbr": "MN",
+      "fips": "27",
+      "sales_state_rate": 6.88,
+      "sales_local_average": 1.26,
+      "sales_combined_average": 8.14
+    },
+    {
+      "state": "Mississippi",
+      "abbr": "MS",
+      "fips": "28",
+      "sales_state_rate": 7.0,
+      "sales_local_average": 0.06,
+      "sales_combined_average": 7.06
+    },
+    {
+      "state": "Missouri",
+      "abbr": "MO",
+      "fips": "29",
+      "sales_state_rate": 4.23,
+      "sales_local_average": 4.22,
+      "sales_combined_average": 8.44
+    },
+    {
+      "state": "Montana",
+      "abbr": "MT",
+      "fips": "30",
+      "sales_state_rate": 0.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 0.0
+    },
+    {
+      "state": "Nebraska",
+      "abbr": "NE",
+      "fips": "31",
+      "sales_state_rate": 5.5,
+      "sales_local_average": 1.48,
+      "sales_combined_average": 6.98
+    },
+    {
+      "state": "Nevada",
+      "abbr": "NV",
+      "fips": "32",
+      "sales_state_rate": 6.85,
+      "sales_local_average": 1.39,
+      "sales_combined_average": 8.24
+    },
+    {
+      "state": "New Hampshire",
+      "abbr": "NH",
+      "fips": "33",
+      "sales_state_rate": 0.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 0.0
+    },
+    {
+      "state": "New Jersey",
+      "abbr": "NJ",
+      "fips": "34",
+      "sales_state_rate": 6.63,
+      "sales_local_average": -0.02,
+      "sales_combined_average": 6.6
+    },
+    {
+      "state": "New Mexico",
+      "abbr": "NM",
+      "fips": "35",
+      "sales_state_rate": 4.88,
+      "sales_local_average": 2.8,
+      "sales_combined_average": 7.68
+    },
+    {
+      "state": "New York",
+      "abbr": "NY",
+      "fips": "36",
+      "sales_state_rate": 4.0,
+      "sales_local_average": 4.54,
+      "sales_combined_average": 8.54
+    },
+    {
+      "state": "North Carolina",
+      "abbr": "NC",
+      "fips": "37",
+      "sales_state_rate": 4.75,
+      "sales_local_average": 2.35,
+      "sales_combined_average": 7.1
+    },
+    {
+      "state": "North Dakota",
+      "abbr": "ND",
+      "fips": "38",
+      "sales_state_rate": 5.0,
+      "sales_local_average": 2.09,
+      "sales_combined_average": 7.09
+    },
+    {
+      "state": "Ohio",
+      "abbr": "OH",
+      "fips": "39",
+      "sales_state_rate": 5.75,
+      "sales_local_average": 1.54,
+      "sales_combined_average": 7.29
+    },
+    {
+      "state": "Oklahoma",
+      "abbr": "OK",
+      "fips": "40",
+      "sales_state_rate": 4.5,
+      "sales_local_average": 4.56,
+      "sales_combined_average": 9.06
+    },
+    {
+      "state": "Oregon",
+      "abbr": "OR",
+      "fips": "41",
+      "sales_state_rate": 0.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 0.0
+    },
+    {
+      "state": "Pennsylvania",
+      "abbr": "PA",
+      "fips": "42",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.34,
+      "sales_combined_average": 6.34
+    },
+    {
+      "state": "Rhode Island",
+      "abbr": "RI",
+      "fips": "44",
+      "sales_state_rate": 7.0,
+      "sales_local_average": 0.0,
+      "sales_combined_average": 7.0
+    },
+    {
+      "state": "South Carolina",
+      "abbr": "SC",
+      "fips": "45",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 1.49,
+      "sales_combined_average": 7.49
+    },
+    {
+      "state": "South Dakota",
+      "abbr": "SD",
+      "fips": "46",
+      "sales_state_rate": 4.2,
+      "sales_local_average": 1.91,
+      "sales_combined_average": 6.11
+    },
+    {
+      "state": "Tennessee",
+      "abbr": "TN",
+      "fips": "47",
+      "sales_state_rate": 7.0,
+      "sales_local_average": 2.61,
+      "sales_combined_average": 9.61
+    },
+    {
+      "state": "Texas",
+      "abbr": "TX",
+      "fips": "48",
+      "sales_state_rate": 6.25,
+      "sales_local_average": 1.95,
+      "sales_combined_average": 8.2
+    },
+    {
+      "state": "Utah",
+      "abbr": "UT",
+      "fips": "49",
+      "sales_state_rate": 6.1,
+      "sales_local_average": 1.32,
+      "sales_combined_average": 7.42
+    },
+    {
+      "state": "Vermont",
+      "abbr": "VT",
+      "fips": "50",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.43,
+      "sales_combined_average": 6.43
+    },
+    {
+      "state": "Virginia",
+      "abbr": "VA",
+      "fips": "51",
+      "sales_state_rate": 5.3,
+      "sales_local_average": 0.47,
+      "sales_combined_average": 5.77
+    },
+    {
+      "state": "Washington",
+      "abbr": "WA",
+      "fips": "53",
+      "sales_state_rate": 6.5,
+      "sales_local_average": 3.07,
+      "sales_combined_average": 9.57
+    },
+    {
+      "state": "West Virginia",
+      "abbr": "WV",
+      "fips": "54",
+      "sales_state_rate": 6.0,
+      "sales_local_average": 0.6,
+      "sales_combined_average": 6.6
+    },
+    {
+      "state": "Wisconsin",
+      "abbr": "WI",
+      "fips": "55",
+      "sales_state_rate": 5.0,
+      "sales_local_average": 0.72,
+      "sales_combined_average": 5.72
+    },
+    {
+      "state": "Wyoming",
+      "abbr": "WY",
+      "fips": "56",
+      "sales_state_rate": 4.0,
+      "sales_local_average": 1.39,
+      "sales_combined_average": 5.39
+    }
+  ]
+}

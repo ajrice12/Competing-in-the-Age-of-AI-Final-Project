@@ -30,8 +30,9 @@ def _key() -> str:
     key = os.getenv('CENSUS_API_KEY', '').strip()
     if not key:
         raise CensusAPIError(
-            'Census ACS metrics require CENSUS_API_KEY. Add it to your .env file. '
-            'The BLS and tax features still work without it.'
+            'Census now requires an activated CENSUS_API_KEY for these ACS queries. '
+            'Request the free key, activate the emailed link, and add it to your .env file '
+            'locally or to the Render environment. The BLS and tax features still work without it.'
         )
     return key
 

@@ -12,6 +12,7 @@ import plotly.express as px
 
 from services.tax_engine import rank_states
 from services.census_api import get_county_metrics, CensusAPIError
+from utils.sales_tax_ui import comparison_panel, comparison_view, lookup_panel, quote_view
 
 dash.register_page(__name__, path='/', name='Home')
 
@@ -56,7 +57,9 @@ layout = html.Div([
         html.Div([html.P('Lowest estimated state taxes', className='card-kicker'), html.Div(id='lowest-states')], className='panel'),
         html.Div([
             html.P('County tax-pressure proxy', className='card-kicker'),
-            html.P('Median real-estate tax ÷ median household income (ACS). Not a personalized county income-tax estimate.', className='muted small'),
+            html.P('Median real-estate tax paid ÷ median household income × 100, using 2024 ACS county estimates. '
+                   'It is a broad housing-cost pressure signal—not a county sales-tax rate or a personalized tax bill.',
+                   className='muted small'),
             html.Div(id='county-tax-ranking')
         ], className='panel'),
     ], className='three-col'),
@@ -66,9 +69,22 @@ layout = html.Div([
             html.H3('Estimated 2026 state income tax at your income'),
             html.P('Simplified estimator; local income taxes and many credits/special rules are excluded.', className='muted'),
             dcc.Graph(id='tax-ranking-chart', config={'displayModeBar': False})
-        ], className='panel')
-    ])
+        ], className='panel', role='img', **{'aria-label': 'Ranking chart of estimated state income taxes'})
+    ]),
+    comparison_panel(),
+    lookup_panel('home-sales'),
 ])
+
+
+@callback(Output('home-sales-chart', 'figure'), Output('home-sales-table', 'children'), Input('home-sales-metric', 'value'))
+def show_sales_comparison(metric):
+    return comparison_view(metric)
+
+
+@callback(Output('home-sales-result', 'children'), Input('home-sales-lookup', 'n_clicks'),
+          State('home-sales-zip', 'value'), State('home-sales-purchase', 'value'), prevent_initial_call=True)
+def show_sales_lookup(clicks, zip_code, purchase):
+    return quote_view(zip_code, purchase)
 
 
 @callback(
@@ -96,7 +112,9 @@ def analyze_income(_clicks, income, filing_status):
         custom_data=['effective_rate']
     )
     fig.update_traces(hovertemplate='<b>%{y}</b><br>Tax: $%{x:,.0f}<br>Effective rate: %{customdata[0]:.2f}%<extra></extra>')
-    fig.update_layout(margin=dict(l=10,r=10,t=10,b=10), height=470, template='plotly_white')
+    fig.update_traces(marker_color='#315f9c', marker_line_color='#f7f2e7', marker_line_width=.5)
+    fig.update_layout(margin=dict(l=10,r=10,t=10,b=10), height=470, template='plotly_white',
+                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#fffdf8')
 
     county_children = []
     county_status = 'BLS map metrics work without keys. Census county tax-pressure rankings need CENSUS_API_KEY.'
@@ -113,7 +131,11 @@ def analyze_income(_clicks, income, filing_status):
         ]
         county_status = 'Census ACS connected. County tax-pressure proxy is using 2024 ACS 5-year estimates.'
     except CensusAPIError as exc:
-        county_children = html.Div(str(exc), className='api-warning')
+        county_children = html.Div([
+            html.P(str(exc)),
+            html.A('Request and activate a free Census API key',
+                   href='https://api.census.gov/data/key_signup.html', target='_blank', rel='noopener noreferrer')
+        ], className='api-warning')
     except Exception as exc:
         county_children = html.Div(f'County ranking unavailable: {exc}', className='api-warning')
 

@@ -35,7 +35,8 @@ layout = html.Div([
     html.Div([html.Label('Ranking'), dcc.Dropdown(id='ranking-metric', options=[{'label':v,'value':k} for k,v in METRICS.items()], value='estimated_tax', clearable=False)], className='control-block'),
     html.Div(id='ranking-note', className='status-note'),
     html.Div([
-        html.Div([dcc.Graph(id='ranking-chart', config={'displayModeBar':False})], className='panel'),
+        html.Div([dcc.Graph(id='ranking-chart', config={'displayModeBar':False})], className='panel',
+                 role='img', **{'aria-label': 'National ranking bar chart for the selected measure'}),
         html.Div([dash_table.DataTable(id='ranking-table', page_size=15, style_table={'overflowX':'auto'}, style_cell={'padding':'10px','fontFamily':'Arial','textAlign':'left'}, style_header={'fontWeight':'700'})], className='panel')
     ], className='two-col')
 ])
@@ -74,7 +75,9 @@ def update_rankings(metric, income_store):
         df.insert(0,'rank',range(1,len(df)+1))
         plot_df = df.sort_values('value', ascending=not ascending)
         fig = px.bar(plot_df, x='value', y='state', orientation='h', labels={'value':METRICS[metric],'state':''})
-        fig.update_layout(template='plotly_white', margin=dict(l=10,r=10,t=10,b=10), height=520)
+        fig.update_traces(marker_color='#315f9c', marker_line_color='#f7f2e7', marker_line_width=.5)
+        fig.update_layout(template='plotly_white', margin=dict(l=10,r=10,t=10,b=10), height=520,
+                          paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#fffdf8')
         columns = [{'name':'Rank','id':'rank'},{'name':'State','id':'state'},{'name':'Value','id':'value','type':'numeric','format':{'specifier':',.2f'}}]
         return fig, df.to_dict('records'), columns, note
     except CensusAPIError as exc:

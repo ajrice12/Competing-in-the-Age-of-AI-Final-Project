@@ -16,11 +16,13 @@ from services.tax_engine import rank_states
 from services.bls_qcew import get_state_metrics as bls_states
 from services.census_api import get_state_metrics as census_states, CensusAPIError
 from utils.geography import STATE_META, FIPS_TO_NAME
+from services.sales_tax import SALES_METRICS, source_note, state_sales_taxes
 
 dash.register_page(__name__, path='/compare', name='Compare States')
 
 STATE_OPTIONS = [{'label':name,'value':name} for name in STATE_META if name != 'District of Columbia']
 METRICS = {
+    **SALES_METRICS,
     'estimated_tax':'Estimated tax at saved income',
     'effective_rate':'Effective tax rate',
     'avg_wkly_wage':'Average weekly wage',
@@ -38,7 +40,8 @@ layout = html.Div([
         html.Div([html.Label('Metric'), dcc.Dropdown(id='compare-metric', options=[{'label':v,'value':k} for k,v in METRICS.items()], value='estimated_tax', clearable=False)], className='control-block'),
     ], className='control-row'),
     html.Div(id='compare-note', className='status-note'),
-    html.Div([dcc.Graph(id='compare-chart', config={'displayModeBar':False})], className='panel')
+    html.Div([dcc.Graph(id='compare-chart', config={'displayModeBar':False})], className='panel',
+             role='img', **{'aria-label': 'Bar chart comparing the selected states'})
 ])
 
 @callback(
@@ -54,7 +57,12 @@ def compare_states(states, metric, income_store):
         fig = go.Figure().add_annotation(text='Select at least one state.', x=.5, y=.5, showarrow=False)
         return fig, 'No states selected.'
     try:
-        if metric in {'estimated_tax','effective_rate'}:
+        if metric in SALES_METRICS:
+            df = state_sales_taxes()
+            df = df[df['state'].isin(states)].copy()
+            df['value'] = df[metric]
+            note = source_note()
+        elif metric in {'estimated_tax','effective_rate'}:
             s = income_store or {'income':100000,'filing_status':'single'}
             df = rank_states(s.get('income',100000), s.get('filing_status','single'))
             df = df[df['state'].isin(states)].copy()
@@ -74,8 +82,10 @@ def compare_states(states, metric, income_store):
             df['value'] = df[metric]
             note = 'Census ACS 2024 5-year API.'
         fig = px.bar(df, x='state', y='value', labels={'state':'','value':METRICS[metric]})
-        fig.update_layout(template='plotly_white', margin=dict(l=20,r=20,t=20,b=20), height=500)
-        fig.update_traces(hovertemplate='<b>%{x}</b><br>%{y:,.2f}<extra></extra>')
+        fig.update_layout(template='plotly_white', margin=dict(l=20,r=20,t=20,b=20), height=500,
+                          paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#fffdf8')
+        fig.update_traces(hovertemplate='<b>%{x}</b><br>%{y:,.2f}<extra></extra>',
+                          marker_color='#315f9c', marker_line_color='#f7f2e7', marker_line_width=.5)
         return fig, note
     except CensusAPIError as exc:
         fig = go.Figure().add_annotation(text=str(exc), x=.5, y=.5, showarrow=False)
